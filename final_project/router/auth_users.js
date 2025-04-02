@@ -52,16 +52,46 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   //return res.status(300).json({message: "Yet to be implemented"});
 
     const isbn = req.params.isbn;
-    const bookReviews = books[isbn].reviews;
+    //const bookreviews = books[isbn].reviews;
 
     const username = req.session.authorization.username;
-    const review = req.body.review;
+    const userreview = req.body.review;
 
-    
-    res.send(books[isbn].reviews);
+    if (!books[isbn]) {
+        return res.status(404).json({ message: "ISBN book not found!" });
+    }
 
-    return res.status(200).send(req.session.authorization.username);
+    if (!userreview) {
+        return res.status(404).json({ message: "Error adding review!" });
+    }
+
+    books[isbn].reviews[username] = userreview;
+
+    return res.status(200).send("Review successfully added!");
 });
+
+// Delete a book review
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    //Write your code here
+    //return res.status(300).json({message: "Yet to be implemented"});
+  
+      const isbn = req.params.isbn;
+  
+      const username = req.session.authorization.username;
+      const userreview = req.body.review;
+
+        if (!books[isbn]) {
+            return res.status(404).json({ message: "ISBN book not found!" });
+        }
+
+        if (books[isbn].reviews[username]) {
+            delete books[isbn].reviews[username];
+            return res.status(200).send("Review successfully deleted!");
+        } else {
+            return res.status(404).json({ message: "No review found for logged in user!" });
+        }
+      
+  });
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
